@@ -67,9 +67,9 @@ echo ""
 # PIN PROTECTION
 # =============================
 
-CORRECT_PIN="RYZNA123"   # <-- GANTI PIN
+CORRECT_PIN="RYZNAJA"   # <-- GANTI PIN
 
-rgb_text "Installer Protection"
+rgb_text "All in One Installer"
 read -p "Masukkan PIN: " INPUT_PIN
 
 if [[ "$INPUT_PIN" != "$CORRECT_PIN" ]]; then
