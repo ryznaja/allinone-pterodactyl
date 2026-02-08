@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # ============================================
-# AUTO PTERODACTYL INSTALLER - PREMIUM STYLE
+# AUTO PTERODACTYL INSTALLER - HYBRID EDITION
 # ============================================
 
 # =============================
-# RGB FUNCTION
+# RGB
 # =============================
 
 rgb_text() {
@@ -18,39 +18,16 @@ rgb_text() {
 }
 
 # =============================
-# PROGRESS FROM OUTPUT
+# PROGRESS (AMAN)
 # =============================
 
-run_with_progress() {
-    cmd="$1"
-    percent=0
-
+progress_bar() {
     echo ""
-    rgb_text "Memulai proses..."
-    echo ""
-
-    eval "$cmd" 2>&1 | while IFS= read -r line; do
-        echo -ne "\rProgress: ["
-        filled=$((percent / 2))
-        for ((i=0;i<50;i++)); do
-            if [ $i -lt $filled ]; then
-                printf "\e[38;5;46m#\e[0m"
-            else
-                printf "-"
-            fi
-        done
-        echo -ne "] $percent%%"
-
-        if [[ $percent -lt 95 ]]; then
-            ((percent++))
-        fi
+    for i in {1..40}; do
+        printf "\e[38;5;46m#\e[0m"
+        sleep 0.03
     done
-
-    percent=100
-    echo -ne "\rProgress: ["
-    for ((i=0;i<50;i++)); do printf "\e[38;5;46m#\e[0m"; done
-    echo "] 100%"
-    echo "Selesai ✔"
+    echo " ✔"
 }
 
 # =============================
@@ -64,12 +41,12 @@ rgb_text "======================================"
 echo ""
 
 # =============================
-# PIN PROTECTION
+# PIN
 # =============================
 
-CORRECT_PIN="RYZNAJA"   # <-- GANTI PIN
+CORRECT_PIN="RYZNAJA"   # <-- GANTI
 
-rgb_text "All in One Installer"
+rgb_text "Installer Protection"
 read -p "Masukkan PIN: " INPUT_PIN
 
 if [[ "$INPUT_PIN" != "$CORRECT_PIN" ]]; then
@@ -87,31 +64,39 @@ sleep 1
 IPVPS=$(curl -s ifconfig.me)
 
 # =============================
-# PANEL
+# PANEL (INTERAKTIF)
 # =============================
 
 install_panel() {
-    rgb_text "INSTALL PANEL"
-    run_with_progress "bash <(curl -s https://pterodactyl-installer.se)"
+    clear
+    rgb_text "INSTALL PANEL (Official Installer)"
+    echo ""
+    bash <(curl -s https://pterodactyl-installer.se)
 }
 
 uninstall_panel() {
-    rgb_text "UNINSTALL PANEL"
-    run_with_progress "bash <(curl -s https://pterodactyl-installer.se) <<< 6"
+    clear
+    rgb_text "UNINSTALL PANEL (Official Installer)"
+    echo ""
+    bash <(curl -s https://pterodactyl-installer.se)
 }
 
 # =============================
-# NODE
+# NODE (INTERAKTIF)
 # =============================
 
 install_node() {
+    clear
     rgb_text "INSTALL NODE/WINGS"
-    run_with_progress "bash <(curl -s https://pterodactyl-installer.se)"
+    echo ""
+    bash <(curl -s https://pterodactyl-installer.se)
 }
 
 uninstall_node() {
+    clear
     rgb_text "UNINSTALL NODE/WINGS"
-    run_with_progress "bash <(curl -s https://pterodactyl-installer.se) <<< 5"
+    echo ""
+    bash <(curl -s https://pterodactyl-installer.se)
 }
 
 # =============================
@@ -150,19 +135,23 @@ import_egg() {
     EGG_FILE=${eggs[$((pilih-1))]}
     EGG_URL="$BASE_URL/$EGG_FILE"
 
-    rgb_text "IMPORT $EGG_FILE"
-    run_with_progress "php /var/www/pterodactyl/artisan p:eggs:import $EGG_URL"
+    rgb_text "Importing..."
+    progress_bar
+    php /var/www/pterodactyl/artisan p:eggs:import "$EGG_URL"
+    echo "Selesai ✔"
 }
 
 # =============================
-# AUTO ALLOCATION
+# ALLOCATION
 # =============================
 
 auto_allocation() {
     read -p "Node ID: " node
-    read -p "Range port (8000-9000): " range
-    rgb_text "MEMBUAT ALLOCATION"
-    run_with_progress "php /var/www/pterodactyl/artisan p:allocation:make --node=$node --ip=$IPVPS --ports=$range"
+    read -p "Range port: " range
+    rgb_text "Membuat allocation..."
+    progress_bar
+    php /var/www/pterodactyl/artisan p:allocation:make --node=$node --ip=$IPVPS --ports=$range
+    echo "Selesai ✔"
 }
 
 # =============================
@@ -173,25 +162,21 @@ install_theme() {
     clear
     rgb_text "PILIH THEME"
     echo "1. Stellar"
-    echo "2. Billing"
     echo "0. Kembali"
     read -p "Pilih: " t
 
     case $t in
         1)
-            rgb_text "INSTALL STELLAR"
-            run_with_progress "bash <(curl -s https://raw.githubusercontent.com/stellardev/theme/main/install.sh)"
-            ;;
-        2)
-            rgb_text "INSTALL BILLING"
-            run_with_progress "bash <(curl -s https://example.com/billing/install.sh)"
+            rgb_text "Install Stellar..."
+            progress_bar
+            bash <(curl -s https://raw.githubusercontent.com/stellardev/theme/main/install.sh)
             ;;
         0) return ;;
     esac
 }
 
 uninstall_theme() {
-    echo "Restore backup untuk hapus theme."
+    echo "Gunakan backup untuk hapus theme."
 }
 
 # =============================
@@ -200,14 +185,16 @@ uninstall_theme() {
 
 install_protect() {
     read -p "Versi protect: " version
-    rgb_text "INSTALL PROTECT"
-    run_with_progress "bash <(curl -s https://raw.githubusercontent.com/Fdofficialcoyhost/Security-Pterodactyl/main/pr${version}.sh)"
+    rgb_text "Installing protect..."
+    progress_bar
+    bash <(curl -s https://raw.githubusercontent.com/Fdofficialcoyhost/Security-Pterodactyl/main/pr${version}.sh)
 }
 
 uninstall_protect() {
     read -p "Versi protect: " version
-    rgb_text "UNINSTALL PROTECT"
-    run_with_progress "bash <(curl -s https://raw.githubusercontent.com/allzxy/Unprotect/refs/heads/main/un${version}.sh)"
+    rgb_text "Uninstall protect..."
+    progress_bar
+    bash <(curl -s https://raw.githubusercontent.com/allzxy/Unprotect/refs/heads/main/un${version}.sh)
 }
 
 # =============================
