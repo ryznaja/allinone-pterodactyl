@@ -1,8 +1,10 @@
 #!/bin/bash
 
-# ============================================
-# AUTO PTERODACTYL INSTALLER - HYBRID EDITION
-# ============================================
+# ==================================================
+# AUTO PTERODACTYL INSTALLER - UNIVERSAL EDITION
+# ==================================================
+
+set -e
 
 # =============================
 # RGB
@@ -18,14 +20,13 @@ rgb_text() {
 }
 
 # =============================
-# PROGRESS (AMAN)
+# PROGRESS
 # =============================
 
 progress_bar() {
-    echo ""
     for i in {1..40}; do
         printf "\e[38;5;46m#\e[0m"
-        sleep 0.03
+        sleep 0.02
     done
     echo " ✔"
 }
@@ -44,9 +45,9 @@ echo ""
 # PIN
 # =============================
 
-CORRECT_PIN="RYZNAJA"   # <-- GANTI
+CORRECT_PIN="ryznaja"   # <-- GANTI PIN
 
-rgb_text "Installer Protection"
+rgb_text "Installer Pterodactyl"
 read -p "Masukkan PIN: " INPUT_PIN
 
 if [[ "$INPUT_PIN" != "$CORRECT_PIN" ]]; then
@@ -64,19 +65,19 @@ sleep 1
 IPVPS=$(curl -s ifconfig.me)
 
 # =============================
-# PANEL (INTERAKTIF)
+# PANEL (INTERAKTIF RESMI)
 # =============================
 
 install_panel() {
     clear
-    rgb_text "INSTALL PANEL (Official Installer)"
+    rgb_text "Menjalankan installer resmi panel..."
     echo ""
     bash <(curl -s https://pterodactyl-installer.se)
 }
 
 uninstall_panel() {
     clear
-    rgb_text "UNINSTALL PANEL (Official Installer)"
+    rgb_text "Menjalankan uninstaller resmi..."
     echo ""
     bash <(curl -s https://pterodactyl-installer.se)
 }
@@ -87,20 +88,20 @@ uninstall_panel() {
 
 install_node() {
     clear
-    rgb_text "INSTALL NODE/WINGS"
+    rgb_text "Menjalankan installer Wings..."
     echo ""
     bash <(curl -s https://pterodactyl-installer.se)
 }
 
 uninstall_node() {
     clear
-    rgb_text "UNINSTALL NODE/WINGS"
+    rgb_text "Menjalankan uninstaller Wings..."
     echo ""
     bash <(curl -s https://pterodactyl-installer.se)
 }
 
 # =============================
-# IMPORT EGG
+# EGG (UNIVERSAL SAFE)
 # =============================
 
 import_egg() {
@@ -111,34 +112,32 @@ import_egg() {
     BASE_URL="https://raw.githubusercontent.com/$GITHUB_USER/$GITHUB_REPO/$BRANCH"
 
     clear
-    rgb_text "Mengambil daftar egg..."
+    rgb_text "Download egg dari GitHub..."
+    echo ""
+
+    mkdir -p /root/eggs
+    cd /root/eggs || exit
 
     mapfile -t eggs < <(curl -s https://api.github.com/repos/$GITHUB_USER/$GITHUB_REPO/contents | grep '"name":' | cut -d '"' -f4 | grep '.json')
 
     if [ ${#eggs[@]} -eq 0 ]; then
-        echo "Tidak ada egg!"
+        echo "Tidak ada egg ditemukan."
         sleep 2
         return
     fi
 
-    echo ""
-    for i in "${!eggs[@]}"; do
-        echo "$((i+1)). ${eggs[$i]}"
+    for egg in "${eggs[@]}"; do
+        echo -n "Downloading $egg "
+        progress_bar
+        curl -s -O "$BASE_URL/$egg"
     done
-    echo "0. Kembali"
-    read -p "Pilih: " pilih
 
-    if [ "$pilih" = "0" ]; then
-        return
-    fi
-
-    EGG_FILE=${eggs[$((pilih-1))]}
-    EGG_URL="$BASE_URL/$EGG_FILE"
-
-    rgb_text "Importing..."
-    progress_bar
-    php /var/www/pterodactyl/artisan p:eggs:import "$EGG_URL"
-    echo "Selesai ✔"
+    echo ""
+    rgb_text "Selesai!"
+    echo "File ada di: /root/eggs"
+    echo ""
+    echo "Silakan import melalui:"
+    echo "Admin Panel → Nests → Import Egg"
 }
 
 # =============================
@@ -147,10 +146,13 @@ import_egg() {
 
 auto_allocation() {
     read -p "Node ID: " node
-    read -p "Range port: " range
+    read -p "Range port (contoh 8000-9000): " range
+
     rgb_text "Membuat allocation..."
     progress_bar
-    php /var/www/pterodactyl/artisan p:allocation:make --node=$node --ip=$IPVPS --ports=$range
+
+    php /var/www/pterodactyl/artisan p:allocation:make --node="$node" --ip="$IPVPS" --ports="$range"
+
     echo "Selesai ✔"
 }
 
@@ -160,23 +162,13 @@ auto_allocation() {
 
 install_theme() {
     clear
-    rgb_text "PILIH THEME"
-    echo "1. Stellar"
-    echo "0. Kembali"
-    read -p "Pilih: " t
-
-    case $t in
-        1)
-            rgb_text "Install Stellar..."
-            progress_bar
-            bash <(curl -s https://raw.githubusercontent.com/stellardev/theme/main/install.sh)
-            ;;
-        0) return ;;
-    esac
+    rgb_text "Install theme..."
+    progress_bar
+    bash <(curl -s https://raw.githubusercontent.com/stellardev/theme/main/install.sh)
 }
 
 uninstall_theme() {
-    echo "Gunakan backup untuk hapus theme."
+    echo "Gunakan backup panel untuk uninstall theme."
 }
 
 # =============================
@@ -185,7 +177,7 @@ uninstall_theme() {
 
 install_protect() {
     read -p "Versi protect: " version
-    rgb_text "Installing protect..."
+    rgb_text "Install protect..."
     progress_bar
     bash <(curl -s https://raw.githubusercontent.com/Fdofficialcoyhost/Security-Pterodactyl/main/pr${version}.sh)
 }
@@ -210,7 +202,7 @@ menu() {
     echo "2. Uninstall Panel"
     echo "3. Install Node/Wings"
     echo "4. Uninstall Node/Wings"
-    echo "5. Import Egg"
+    echo "5. Download Egg"
     echo "6. Auto Allocation"
     echo "7. Install Theme"
     echo "8. Uninstall Theme"
